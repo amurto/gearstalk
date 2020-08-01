@@ -1,0 +1,46 @@
+version: "3.0"
+
+services:
+
+  nginx:
+      container_name: "nginx"
+      build:
+        context: nginx
+      volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      restart:
+        on-failure
+      networks:
+        - backend1
+      ports:
+        - 80:80
+      depends_on:
+        - server1
+        - server2
+
+  server1:
+    container_name: server1
+    networks:
+      - backend1
+    env_file:
+      - ./.env
+    build : .
+    volumes:
+      - ./:/app
+    command: 
+      gunicorn -w 2 --chdir /app app:app -b :8080  --log-level debug --reload
+
+  server2:
+    container_name: server2
+    networks:
+      - backend1
+    env_file:
+      - ./.env
+    build : .
+    volumes:
+      - ./:/app
+    command: 
+      gunicorn -w 2 --chdir /app app:app -b :8080  --log-level debug --reload
+
+networks:
+  backend1: {}
