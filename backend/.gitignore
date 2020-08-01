@@ -1,0 +1,7 @@
+/env/
+/instance/
+/saves/
+/venv
+/__pycache__
+/routes/__pycache__
+/utils/__pycache__
