@@ -1,0 +1,48 @@
+$color-button:          #2db1e1;
+$color-button-hover:    #408aff;
+
+.arrow-button {
+  font-size: 18px;
+  display: inline-block;
+  position: relative;
+  color: #022254;
+  font-weight: 550;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+//  box-shadow: 1px 1px 10px 0px rgba(50, 50, 50, 0.5);
+  -webkit-filter: drop-shadow(3px 3px 3px rgba(50, 50, 50, 0.35));
+  -webkit-transform: translateZ(0);
+//  filter: url(../img/shadow.svg#drop-shadow);
+  .label {
+	display: inline-block;
+	height: 50px;
+	line-height: 50px;
+	padding: 0 1.4em;
+	float: left;
+	background-color: $color-button;
+    transition: all 0.2s;
+  }
+  .arrow {
+    display: block;
+	float: left;
+    width: 0; 
+    height: 0;
+	 border-top: 25px solid transparent;
+	 border-bottom: 25px solid transparent;
+	 border-left: 20px solid $color-button;
+    transition: all 0.2s;
+  }
+  &:hover {
+	.label {
+	  background-color: $color-button-hover;
+	 }
+	.arrow {
+	  border-left: 20px solid $color-button-hover;
+   }
+  }
+  &:focus {
+	outline:0 !important;
+  }
+}

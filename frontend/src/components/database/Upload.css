@@ -1,0 +1,70 @@
+.cssProgress {
+  width: 100%;
+}
+
+.cssProgress .cssProgress-bar {
+  display: block;
+  float: left;
+  width: 0%;
+  height: 100%;
+  background: #3798d9;
+  box-shadow: inset 0px -1px 2px rgba(0, 0, 0, 0.1);
+  -webkit-transition: width 0.8s ease-in-out;
+          transition: width 0.8s ease-in-out;
+}
+
+.progress4 {
+  position: relative;
+  width: 100%;
+  background-color: #EEE;
+}
+.progress4.cssProgress-bg {
+  background-color: #bbdefb !important;
+}
+
+.progress4 .cssProgress-bar {
+  display: block;
+  float: none;
+  width: 0%;
+  height: 4px;
+  background: #3798d9;
+}
+.progress4 .cssProgress-bar.cssProgress-lg {
+  height: 4px;
+}
+
+.progress4 .cssProgress-bar.cssProgress-glow {
+  box-shadow: 5px 0px 15px 0px #3798D9;
+}
+
+.progress4 .cssProgress-bar.cssProgress-glow-active {
+  -webkit-animation: cssProgressGlowActive1 3s linear infinite;
+  -ms-animation: cssProgressGlowActive1 3s linear infinite;
+  animation: cssProgressGlowActive1 3s linear infinite;
+}
+
+@-webkit-keyframes cssProgressGlowActive1 {
+  0%, 100% {
+    box-shadow: 5px 0px 15px 0px #3798D9;
+  }
+  45% {
+    box-shadow: 1px 0px 4px 0px #3798D9;
+  }
+}
+@-ms-keyframes cssProgressGlowActive1 {
+  0%, 100% {
+    box-shadow: 5px 0px 15px 0px #3798D9;
+  }
+  45% {
+    box-shadow: 1px 0px 4px 0px #3798D9;
+  }
+}
+@keyframes cssProgressGlowActive1 {
+  0%, 100% {
+    box-shadow: 5px 0px 15px 0px #3798D9;
+  }
+  45% {
+    box-shadow: 1px 0px 4px 0px #3798D9;
+  }
+}
+
