@@ -1,5 +1,0 @@
-/env/
-/models/yolo_base_models/
-/__pycache__/*
-/utils/__pycache__
-/package.json
