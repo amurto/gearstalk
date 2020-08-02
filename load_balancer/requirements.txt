@@ -1,0 +1,11 @@
+bson==0.5.10
+certifi==2020.6.20
+chardet==3.0.4
+idna==2.10
+pika==1.1.0
+pymongo[srv]
+python-dateutil==2.8.1
+python-dotenv==0.14.0
+requests==2.24.0
+six==1.15.0
+urllib3==1.25.9
