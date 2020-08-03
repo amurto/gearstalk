@@ -51,6 +51,11 @@ pip freeze > requirements.txt
 ```
 Copy paste the output to requirements.txt
 
+## Run 
+```bash
+python app.py air npm start
+```
+
 ## Deactivate Environment
 ```bash
 deactivate
