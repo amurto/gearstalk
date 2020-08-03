@@ -8,7 +8,6 @@ import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import AccessAlarmIcon from "@material-ui/icons/AccessAlarm";
 import AirplayIcon from "@material-ui/icons/Airplay";
-import { toggledata } from "../utils/utils";
 import Line from "../charts/Line";
 import Pie from "../charts/Pie";
 import Bar from "../charts/Bar";
@@ -54,7 +53,7 @@ const Analytics: React.FC = () => {
   const [report, setReport] = useState<string>("");
 
   // eslint-disable-next-line
-  const [toggleData, setToggleData] = useState<any[]>(toggledata);
+  const [toggleData, setToggleData] = useState<any[]>([]);
 
   const [open, setOpen] = useState<boolean>(false);
 
@@ -77,7 +76,6 @@ const Analytics: React.FC = () => {
         console.log(err);
       }
     };
-    // console.log(oid);
     fetchVideo();
   }, [oid, sendRequest, auth.token]);
 
@@ -85,8 +83,6 @@ const Analytics: React.FC = () => {
   useEffect(() => {
     const fetchChartData = async () => {
       try {
-        console.log(video);
-        // eslint-disable-next-line
         const response = await sendRequest(
           process.env.REACT_APP_BACKEND_URL + "/video/visual/" + video._id.$oid, //
           "GET",
@@ -98,13 +94,32 @@ const Analytics: React.FC = () => {
         setLineData(response.linechart);
         setPieData(response.big_data);
         setBarData(response.labels_array);
-        console.log(response);
       } catch (err) {
         console.log(err);
       }
     };
     if (Object.keys(video).length > 0) fetchChartData();
   }, [sendRequest, auth.token, video]);
+
+  useEffect(() => {
+    const fetchToggleData = async () => {
+      try {
+        const response = await sendRequest(
+          process.env.REACT_APP_BACKEND_URL + "/video/toggle_chart/" + video._id.$oid, //
+          "GET",
+          null,
+          {
+            Authorization: "Bearer " + auth.token,
+          }
+        );
+        console.log(response);
+        setToggleData(response.metadata)
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    if (Object.keys(video).length > 0) fetchToggleData();
+  }, [sendRequest, auth.token, video])
 
   const generateReport = async () => {
     try {

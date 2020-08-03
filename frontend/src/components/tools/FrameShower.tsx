@@ -1,14 +1,21 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import ReactPlayer from "react-player";
+import * as tf from "@tensorflow/tfjs";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid, Chip, Avatar, Typography } from "@material-ui/core";
 import { MetaData, Person } from "../../types";
-import PlayCircleFilledIcon from "@material-ui/icons/PlayCircleFilled";
 import Dot from "../utils/Dot";
 // import { md } from "../utils/utils";
 import { useInterval } from "../hooks/time-hook";
 import { useHttpClient } from "../hooks/http-hook";
 import { AuthContext } from "../context/auth-context";
+import LoadingSpinner from "../utils/LoadingSpinner";
+import { useDimension } from "../hooks/dimension-hook";
+import useBoxRenderer from "../hooks/box-hook";
+
+const MODEL_URL = process.env.PUBLIC_URL + "/model/";
+const LABELS_URL = MODEL_URL + "labels.json";
+const MODEL_JSON = MODEL_URL + "model.json";
+
 const useStyles = makeStyles((theme) => ({
   playIcon: {
     margin: "200px 0px",
@@ -45,64 +52,54 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("md")]: {
       width: "50vw",
     },
-    width: "80vw"
-  }
+    width: "80vw",
+  },
 }));
 
 interface Props {
   video: { [key: string]: any };
 }
 const FrameShower: React.FC<Props> = ({ video }) => {
+  const [model, setModel] = useState(null);
+  const [labels, setLabels] = useState(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const dimensions = useDimension();
+
+  useEffect(() => {
+    const loadModel = async () => {
+      setLoading(true);
+      const model = await tf.loadGraphModel(MODEL_JSON);
+      setModel(model);
+      const response = await fetch(LABELS_URL);
+      let labels = await response.json();
+      setLabels(labels);
+      setLoading(false);
+      console.log(model);
+      console.log(labels);
+    };
+    loadModel();
+  }, []);
+
   const { sendRequest } = useHttpClient();
   const auth = useContext(AuthContext);
   const [metadata, setMetadata] = useState<MetaData[]>(null);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentData, setCurrentData] = useState<Person[]>(null);
-  const handleIsPlaying = () => setIsPlaying(true);
-  const handleIsNotPlaying = () => setIsPlaying(false);
   const classes = useStyles();
-  const playerRef = useRef(null);
+  const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
-  const renderPredictions = (persons, canvasRef) => {
-    const ctx = canvasRef.current.getContext("2d");
-    // ctx.translate(0.5, 0.5);
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    // Font options.
-    const font = "10px sans-serif";
-    ctx.font = font;
-    ctx.textBaseline = "top";
-    persons.forEach((person) => {
-      const x = Math.floor(ctx.canvas.width * person.box[0] + 0.5);
-      const y = Math.floor(ctx.canvas.height * person.box[1] + 0.5);
-      const width = ctx.canvas.width * person.box[2];
-      const height = ctx.canvas.height * person.box[3];
-      console.log(x, y, width, height);
-      // Draw the bounding box.
-      ctx.strokeStyle = "#2db1e1";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(x, y, width, height);
-      // Draw the label background.
-      ctx.fillStyle = "#00FFFF";
-      let text: string = "";
-      person.labels.forEach((label: string) => (text = text + ", " + label));
-      const textWidth = ctx.measureText(text).width;
-      const textHeight = parseInt(font, 10); // base 10
-      // ctx.fillRect(x, y, textWidth + 1, textHeight + 1)
-      ctx.fillRect(0, 0, textWidth - 1, textHeight - 1);
-    });
+  const [videoLoaded, setVideoLoaded] = useState<boolean>(false);
 
-    persons.forEach((person) => {
-      const x = ctx.canvas.width * person.box[0];
-      const y = ctx.canvas.height * person.box[1];
-      // Draw the text last to ensure it's on top.
-      ctx.fillStyle = "#000000";
-      let text: string = "";
-      person.labels.forEach((label: string) => (text = text + ", " + label));
-      ctx.fillText(text, x, y);
-    });
-  };
-
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.crossOrigin = "anonymous"
+      videoRef.current.onloadeddata = function() {
+        setVideoLoaded(true);
+    };
+    console.log(videoRef.current)
+    }
+  }, [])
+  useBoxRenderer(model, videoRef, canvasRef, videoLoaded, labels);
   useEffect(() => {
     const fetchMetadata = async () => {
       try {
@@ -124,98 +121,118 @@ const FrameShower: React.FC<Props> = ({ video }) => {
     };
     if (Object.keys(video).length > 0) {
       fetchMetadata();
+
     }
     // if (playerRef.current) console.log(playerRef.current);
   }, [video, auth, sendRequest]);
 
   useInterval(() => {
-    if (metadata && isPlaying && playerRef.current) {
-        console.log("ok")
-      let ct = playerRef.current.getCurrentTime();
+    if (metadata && videoRef.current) {
+      let ct = videoRef.current.currentTime;
       let f = Math.floor(ct);
       let m = ct % f;
       if (m >= 1) ct = ct + 1;
       ct = Math.floor(ct);
       try {
-        let persons = JSON.parse(metadata[ct].persons)
-        console.log(ct,persons)
+        let persons = JSON.parse(metadata[ct].persons);
         setCurrentData(persons);
-        renderPredictions(persons, canvasRef);
       } catch (err) {
-          console.log(err);
+        console.log(err);
       }
     }
   }, 500);
+
+
+
   return (
-    <Grid container className={classes.drawer}>
-      <Grid style={{ padding: "30px" }} item xs={12}>
-        <div className={classes.container}>
-          <canvas
-            width="100%"
-            height="auto"
-            className={classes.canvas}
-            ref={canvasRef}
-          />
-          <ReactPlayer
-            ref={(player) => {
-              playerRef.current = player;
-            }}
-            onStart={handleIsPlaying}
-            onPlay={handleIsPlaying}
-            onPause={handleIsNotPlaying}
-            onEnded={handleIsNotPlaying}
-            controls
-            style={{
-              boxShadow: "-3px 6px 34px 6px rgba(18,25,41,1)",
-            }}
-            width="100%"
-            height="auto"
-            url={`${process.env.REACT_APP_BACKEND_URL}/helpers/video/${video.file_id}`}
-            light={`${process.env.REACT_APP_BACKEND_URL}/helpers/file/${video.thumbnail_id}`}
-            playing
-            pip
-            playIcon={<PlayCircleFilledIcon className={classes.playIcon} />}
-          />
+    <div className={classes.drawer}>
+      {loading && (
+        <div style={{ paddingLeft: "30%" }}>
+          <div style={{ padding: "20px" }}>
+            <LoadingSpinner />
+            <p
+              style={{
+                color: "#fff",
+                fontWeight: 500,
+              }}
+            >
+              Loading Model. Please wait a few seconds...
+            </p>
+          </div>
         </div>
-        <Grid item className={classes.personContainer} xs={12}>
-          <Typography
-            style={{
-              marginBottom: "10px",
-              fontSize: "15px",
-              fontWeight: 500,
-            }}
-          >
-            Metadata will appear over here
-          </Typography>
-          {currentData &&
-            currentData.map((cd, index) => (
-              <div key={index} className={classes.person}>
-                <div className={classes.personInfo}>Person {index + 1}</div>
-                <div>
-                  {cd.colors.map((color, index) => (
-                    <Dot key={index} color={color} />
-                  ))}
-                </div>
-                <div>
-                  {cd.labels.map((label, index) => (
-                    <Chip
-                      key={index}
-                      color="primary"
-                      style={{
-                        margin: "5px 3px",
-                        color: "#1C233E",
-                        fontWeight: 600,
-                      }}
-                      label={label}
-                      avatar={<Avatar>{label.charAt(0)}</Avatar>}
-                    />
-                  ))}
-                </div>
+      )}
+      <div style={{ padding: "30px" }}>
+        <div>
+          <div className="center-div">
+            <div
+              style={{
+                width: `${dimensions.width}px`,
+                height: `${dimensions.height}px`,
+              }}
+            >
+              <div className="image-container">
+                <video
+                  autoPlay
+                  controls
+                  playsInline
+                  muted
+                  width={dimensions.width}
+                  height={dimensions.height}
+                  className="image-canvas"
+                  ref={videoRef}
+                  src={`${process.env.REACT_APP_BACKEND_URL}/helpers/video/${video.file_id}`}
+                />
+                <canvas
+                  width={dimensions.width}
+                  height={dimensions.height}
+                  className="image-canvas"
+                  ref={canvasRef}
+                />
               </div>
-            ))}
+            </div>
+          </div>
+        </div>
+        <Grid container>
+          <Grid item className={classes.personContainer} xs={12}>
+            <Typography
+              style={{
+                marginBottom: "10px",
+                fontSize: "15px",
+                fontWeight: 500,
+              }}
+            >
+              Metadata will appear over here
+            </Typography>
+            {currentData &&
+              currentData.map((cd, index) => (
+                <div key={index} className={classes.person}>
+                  <div className={classes.personInfo}>Person {index + 1}</div>
+                  <div>
+                    {cd.colors.map((color, index) => (
+                      <Dot key={index} color={color} />
+                    ))}
+                  </div>
+                  <div>
+                    {cd.labels.map((label, index) => (
+                      <Chip
+                        key={index}
+                        color="primary"
+                        style={{
+                          margin: "5px 3px",
+                          color: "#1C233E",
+                          fontWeight: 600,
+                        }}
+                        label={label}
+                        avatar={<Avatar>{label.charAt(0)}</Avatar>}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+          </Grid>
         </Grid>
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   );
 };
 

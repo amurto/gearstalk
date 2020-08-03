@@ -207,13 +207,20 @@ const LocationItem: React.FC<LocationItemProps> = (props) => {
           </div>
         </Grid>
         <Grid item xs={6}>
-          <div style={{ fontSize: "12px" }}>Latitude</div>
-          <div style={{ color: "#fff" }}>
-            {parseFloat(props.latitude).toFixed(3)}
+          <div style={{ fontSize: "12px", wordWrap: "break-word" }}>
+            {props.name}
           </div>
-          <div style={{ fontSize: "12px" }}>Longitude</div>
-          <div style={{ color: "#fff" }}>
-            {parseFloat(props.longitude).toFixed(3)}
+          <div style={{ marginTop: "5px" }}>
+            <span style={{ fontSize: "12px" }}>Lat : </span>
+            <span style={{ color: "#fff" }}>
+              {parseFloat(props.latitude).toFixed(3)}
+            </span>
+          </div>
+          <div>
+            <span style={{ fontSize: "12px" }}>Lon : </span>
+            <span style={{ color: "#fff" }}>
+              {parseFloat(props.longitude).toFixed(3)}
+            </span>
           </div>
         </Grid>
       </Grid>
@@ -255,7 +262,7 @@ const LocationDialog: React.FC<LocationDialogProps> = (props) => {
           "GET",
           null,
           {
-            Authorization: 'Bearer ' + auth.token
+            Authorization: "Bearer " + auth.token,
           }
         );
         setLocationData(responseData);
@@ -370,7 +377,7 @@ const Upload: React.FC = () => {
   const [uploading, setUploading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [location, setLocation] = useState<{ [key: string]: any }>();
+  const [location, setLocation] = useState<{ [key: string]: any }>({});
   const [open, setOpen] = useState<boolean>(false);
   const { error, clearError, setErrorText } = useHttpClient();
 
@@ -399,16 +406,12 @@ const Upload: React.FC = () => {
   };
 
   const uploadHandler = () => {
-    if (
-      videoFile &&
-      selectedDate &&
-      location
-    ) {
+    if (videoFile && selectedDate && Object.keys(location).length > 0) {
       setUploading(true);
       setProgress(0);
-      
+
       const headers = {
-        Authorization: 'Bearer ' + auth.token
+        Authorization: "Bearer " + auth.token,
       };
 
       const config = {
@@ -418,9 +421,8 @@ const Upload: React.FC = () => {
           );
           setProgress(percentCompleted);
         },
-        headers: headers
+        headers: headers,
       };
-
 
       let data = new FormData();
       data.append("video", videoFile);
@@ -434,7 +436,7 @@ const Upload: React.FC = () => {
           config
         )
         .then((res) => {
-          console.log("Video Uploaded")
+          console.log("Video Uploaded");
           console.log(res);
           clearError();
           setLocation(undefined);
@@ -546,7 +548,7 @@ const Upload: React.FC = () => {
                 <Grid container className={classes.chooseLocation}>
                   <Grid item xs={6}>
                     <Paper square className={classes.locationPaper}>
-                      {location ? (
+                      {Object.keys((location)).length > 0 ? (
                         <div style={{ padding: "5px" }}>
                           <div style={{ fontSize: "12px" }}>Latitude</div>
                           <div style={{ color: "#fff" }}>

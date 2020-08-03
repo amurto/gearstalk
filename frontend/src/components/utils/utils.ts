@@ -3,8 +3,9 @@ import { MetaData } from "../../types";
 export const stopwords = [
   "blazer",
   "burkha",
+  'halfshirt',
   "headwear",
-  "long pants",
+  "longpants",
   "scarf",
   "sweater",
   "vest",

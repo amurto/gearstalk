@@ -8,3 +8,4 @@
 **/.dockerignore
 **/.vscode
 **/venv
+**/random

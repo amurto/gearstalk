@@ -307,7 +307,6 @@ const LocationDialog: React.FC<LocationDialogProps> = (props) => {
   );
 };
 
-// Set IP for live camera feed
 const LiveCam: React.FC = () => {
   const [live, setLive] = useState<boolean>(false);
   const classes = useStyles();

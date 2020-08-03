@@ -34,7 +34,6 @@ import CameraAltIcon from "@material-ui/icons/CameraAlt";
 import DeleteIcon from "@material-ui/icons/Delete";
 import RoomIcon from "@material-ui/icons/Room";
 import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
-import LiveTvIcon from "@material-ui/icons/LiveTv";
 import VideoLibraryIcon from "@material-ui/icons/VideoLibrary";
 
 declare global {
@@ -155,13 +154,20 @@ const LocationItem: React.FC<LocationItemProps> = (props) => {
           </div>
         </Grid>
         <Grid item xs={6}>
-          <div style={{ fontSize: "12px" }}>Latitude</div>
-          <div style={{ color: "#fff" }}>
-            {parseFloat(props.latitude).toFixed(3)}
+        <div style={{ fontSize: "12px", wordWrap: "break-word" }}>
+            {props.name}
           </div>
-          <div style={{ fontSize: "12px" }}>Longitude</div>
-          <div style={{ color: "#fff" }}>
-            {parseFloat(props.longitude).toFixed(3)}
+          <div style={{ marginTop: "5px" }}>
+            <span style={{ fontSize: "12px" }}>Lat{" "}:{" "}</span>
+            <span style={{ color: "#fff" }}>
+              {parseFloat(props.latitude).toFixed(3)}
+            </span>
+          </div>
+          <div>
+            <span style={{ fontSize: "12px" }}>Lon{" "}:{" "}</span>
+            <span style={{ color: "#fff" }}>
+              {parseFloat(props.longitude).toFixed(3)}
+            </span>
           </div>
         </Grid>
       </Grid>
@@ -661,9 +667,6 @@ const Camera: React.FC = () => {
         case "delete":
           handleDeleteOpen();
           break;
-        case "live":
-          history.push("/");
-          break;
         case "video":
           history.push(`/search/cctv/${camera._id.$oid}`);
           break;
@@ -694,7 +697,11 @@ const Camera: React.FC = () => {
           process.env.REACT_APP_BACKEND_URL +
             "/cctv/deletecctv/" +
             camera._id.$oid,
-          "DELETE"
+          "DELETE",
+          null,
+          {
+            Authorization: 'Bearer ' + auth.token
+          }
         );
         let items = locationData;
         items = items.filter((item) => item._id.$oid !== camera._id.$oid);
@@ -920,11 +927,7 @@ const Camera: React.FC = () => {
             )}
           </Grid>
           <Grid style={{ paddingBottom: "20px" }} container>
-            <Grid id="live" className={classes.option} item xs={6}>
-              <LiveTvIcon />
-              <Typography className={classes.optionTitle}>Live Feed</Typography>
-            </Grid>
-            <Grid id="video" className={classes.option} item xs={6} onClick={optionHandler}>
+            <Grid id="video" className={classes.option} item xs={12} onClick={optionHandler}>
               <VideoLibraryIcon />
               <Typography className={classes.optionTitle}>
                 Search All Videos

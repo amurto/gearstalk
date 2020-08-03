@@ -32,13 +32,13 @@ import AccessAlarmsIcon from "@material-ui/icons/AccessAlarms";
 import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
 import ImageIcon from "@material-ui/icons/Image";
 import ImageSearchIcon from "@material-ui/icons/ImageSearch";
-import TrendingDownIcon from "@material-ui/icons/TrendingDown";
 import DynamicFeedIcon from "@material-ui/icons/DynamicFeed";
 import BookmarksIcon from "@material-ui/icons/Bookmarks";
 import CameraEnhanceIcon from "@material-ui/icons/CameraEnhance";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
-
+import DashboardIcon from '@material-ui/icons/Dashboard';
+  
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -348,8 +348,8 @@ const Play: React.FC = () => {
         case "back":
           history.push("/library");
           break;
-        case "track":
-          history.push(`/track/${video._id.$oid}`);
+        case "dashboard":
+          history.push('/');
           break;
         case "analytics":
           history.push(`/analytics/${video._id.$oid}`);
@@ -617,7 +617,7 @@ const Play: React.FC = () => {
                     </Typography>
                   </Grid>
                   <Grid
-                    id="track"
+                    id="dashboard"
                     className={classes.mainOption}
                     item
                     md={2}
@@ -625,9 +625,9 @@ const Play: React.FC = () => {
                     xs={6}
                     onClick={optionHandler}
                   >
-                    <TrendingDownIcon fontSize="large" />
+                    <DashboardIcon fontSize="large" />
                     <Typography className={classes.optionTitle}>
-                      Realtime Tracking
+                      Dashboard
                     </Typography>
                   </Grid>
                   {video.prepared ? (

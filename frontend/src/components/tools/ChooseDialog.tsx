@@ -133,7 +133,6 @@ const ChooseDialog: React.FC<ChooseDialogProps> = ({
           responseData = responseData.filter(
             (video) => video.prepared === true
           );
-        console.log(responseData);
         setVideoData(responseData);
         setSearchData(responseData);
       } catch (err) {

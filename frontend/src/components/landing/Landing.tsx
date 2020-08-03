@@ -246,7 +246,7 @@ const Landing: React.FC = () => {
               <h1 style={{ color: "lightgreen" }}>
                 MultiLabel Image classifier
               </h1>
-              <h4>(Resnet Architechture)</h4>
+              <h4>(Mobilenet Architechture)</h4>
               <h3>
                 This is a type of classification in which an object can be
                 categorized into more than one class. Here the clothing

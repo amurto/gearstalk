@@ -91,7 +91,7 @@ const VideoCard: React.FC<Props> = (props) => {
     setAnchorEl(null);
   };
 
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
 
   const handleDeleteOpen = () => {
     setDeleteOpen(true);
@@ -165,13 +165,13 @@ const VideoCard: React.FC<Props> = (props) => {
               onClose={handleClose}
             >
               <MenuItem onClick={handleDeleteOpen}>Delete</MenuItem>
-              <MenuItem onClick={handleClose}>Camera</MenuItem>
+              {/* <MenuItem onClick={handleClose}>Camera</MenuItem>
               {!props.prepared && (
                 <MenuItem onClick={handleClose}>Process</MenuItem>
               )}
               {props.prepared && (
                 <MenuItem onClick={handleClose}>Search</MenuItem>
-              )}
+              )} */}
               <MenuItem onClick={handleClose}>Close</MenuItem>
             </Menu>
           </div>

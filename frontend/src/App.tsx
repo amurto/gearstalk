@@ -29,6 +29,7 @@ import Enhance from "./components/tools/Enhance";
 import Analytics from "./components/tools/Analytics";
 import FAQs from "./components/tools/FAQs";
 import Reports from "./components/reports/Reports";
+import LiveStream from "./components/utils/LiveStream"
 
 const theme = createMuiTheme(customTheme);
 
@@ -66,6 +67,11 @@ const App = () => {
         <Route path="/analytics/:oid" exact>
           <ResponsiveDrawer>
             <Analytics />
+          </ResponsiveDrawer>
+        </Route>
+        <Route path="/livestream" exact>
+          <ResponsiveDrawer>
+            <LiveStream />
           </ResponsiveDrawer>
         </Route>
         <Route path="/reports" exact>

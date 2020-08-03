@@ -6,7 +6,7 @@ import datetime
 import bcrypt
 
 auth = Blueprint("auth", __name__)
-authEmails = ['elvis8333', 'mahendrasir', 'amurto8317', 'bhate8318', 'carol8320', 'mahesh8328', 'sherwin8358', 'cassia8374']
+authEmails = ['sihadmin','elvis8333', 'mahendrasir', 'amurto8317', 'bhate8318', 'carol8320', 'mahesh8328', 'sherwin8358', 'cassia8374']
 @auth.route("/signup", methods=["POST"])
 def register():
     user = json.loads(request.data)

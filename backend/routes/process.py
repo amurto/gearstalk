@@ -16,6 +16,8 @@ from utils.colorlist import colours
 import json
 import collections
 import ast
+from threading import Thread
+import time
 
 features_pack = {}
 
@@ -25,9 +27,130 @@ executor = Executor()
 all_colors = [color[3] for color in colours]
 def rgb2hex(r, g, b): return f"#{r:02x}{g:02x}{b:02x}"
 
+
+
+class RTSPVideoWriterObject(object):
+    def __init__(self, src=0):
+        # Create a VideoCapture object
+        self.capture = cv2.VideoCapture(src)
+
+        # Default resolutions of the frame are obtained (system dependent)
+        self.frame_width = int(self.capture.get(3))
+        self.frame_height = int(self.capture.get(4))
+
+        # Set up codec and output video settings
+        self.codec = cv2.VideoWriter_fourcc('M','J','P','G')
+        self.output_video = cv2.VideoWriter('saves/output.avi', self.codec, 30, (self.frame_width, self.frame_height))
+
+        # Start the thread to read frames from the video stream
+        self.thread = Thread(target=self.update, args=())
+        self.thread.daemon = True
+        self.thread.start()
+
+    def update(self):
+        # Read the next frame from the stream in a different thread
+        while True:
+            if self.capture.isOpened():
+                (self.status, self.frame) = self.capture.read()
+
+    def show_frame(self):
+        # Display frames in main program
+        if self.status:
+            cv2.imshow('frame', self.frame)
+
+        # Press Q on keyboard to stop recording
+        key = cv2.waitKey(1)
+        if key == ord('q'):
+            self.capture.release()
+            self.output_video.release()
+            cv2.destroyAllWindows()
+            exit(1)
+
+    def save_frame(self):
+        # Save obtained frame into video output file
+        self.output_video.write(self.frame)
+
+
+
 '''------------------------------------------------
     breaking video down to frames and processing
 --------------------------------------------------'''
+
+@process.route('/streamvideo', methods=['POST'])
+def streamVideo():
+    data = json.loads(request.data)
+    rtsp_stream_link = data.get("ip")
+    location = data.get("location")
+    timestamp = datetime.now()
+    # print(rtsp_stream_link, location)
+    # rtsp_stream_link = 'http://192.168.0.107:8080/video'
+    
+    video_stream_widget = RTSPVideoWriterObject(rtsp_stream_link)
+    frame = 0
+    while frame <= 1000:
+        try:
+            # video_stream_widget.show_frame()
+            video_stream_widget.save_frame()
+            frame +=1
+        except AttributeError:
+            pass
+    
+    tmz_str = ' GMT+0530 (India Standard Time)'
+    if timestamp.endswith(tmz_str):
+        timestamp = timestamp.replace(tmz_str, '')
+
+    date_time_obj = None
+    try:
+        date_time_obj = datetime.strptime(timestamp, '%a %b %d %Y %H:%M:%S')
+    except Exception as e:
+        pass
+    if date_time_obj == None:
+        return jsonify({
+            "success": False,
+            "message": "Timestamp is invalid. Please try again!"
+        }), 403
+
+    oid = fs.upload_from_stream(filename, file)
+    video_name = 'saves/' + randomString() + '.mp4'
+    f = open(video_name, 'wb+')
+    fs.download_to_stream(oid, f)
+    f.close()
+    try:
+        metadata = getFirstFrame(video_name)
+        thumbnail = metadata[0]
+        duration = time.strftime("%H:%M:%S", time.gmtime(metadata[1]))
+    except Exception as e:
+        print(e)
+        if os.path.exists(video_name):
+            os.remove(video_name)
+        return jsonify({"success": False, "message": "Failed to process video"}), 500
+
+    thumbnail_oid = fs.upload_from_stream(str(oid), thumbnail)
+    # To check if image is saved
+    # f_img = open('saves/frame2.jpg','wb+')
+    # fs.download_to_stream(thumbnail_oid, f_img)
+    # f_img.close()
+
+    # insert video details
+    db.video.insert_one({
+        "name": name,
+        "date": str(date_time_obj.date()),
+        "time": str(date_time_obj.time()),
+        "location_id": location,
+        "file_id": str(oid),
+        "thumbnail_id": str(thumbnail_oid),
+        "duration": duration,
+        "processing": False,
+        "prepared": False
+    })
+
+    if os.path.exists(video_name):
+        os.remove(video_name)
+
+    return jsonify({
+        "success": True,
+        "message": "Video successfully uploaded"
+    }), 200
 
 
 @process.route('/processvideo/<oid>', methods=['GET'])

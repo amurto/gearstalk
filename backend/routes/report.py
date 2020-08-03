@@ -63,7 +63,7 @@ class PDF(FPDF):
 
 def image_to_buffer(plt_image):
     buf = io.BytesIO()
-    plt.savefig(buf, format="png", dpi=180)
+    plt_image.savefig(buf, format="png", dpi=180)
     return buf
 
 
@@ -106,27 +106,27 @@ def videoPDF_format(video,line_chart,linechart_buf,heatmap_buf,piechart_buf):
 
     pdf.add_page()
     pdf.cell(0, 30, txt="A Tabular and Graphical Report of number of people identified in the video", ln = 1, align = 'C')
-    pdf.image(linechart_buf, x=35, y=60, w=image_w, h=image_h)
+    pdf.image(piechart_buf, x=35, y=60, w=image_w, h=image_h)
     pdf.ln(1*image_h+15)
-    pdf.multi_cell(0,10, "A line graph is a graphical display of information that changes continuously over time. In this case the graph displays the number of people in the video at particular timestamps. ",0, 3 , 'L')
-    pdf.ln(30)
-    pdf.cell(0,10," Maximum Number of people in any frame of the video = {}".format(max(line_chart.values())) , 0, 1, "L")
+    pdf.multi_cell(0,10, "This pie chart shows the result of a cctv surveillance camera, scanned frame by frame for clothing attributes. The video showcased a number of people wearing various clothing accessories. The different attributes identified are blazers, jeans, sweaters, scarfs, sarees, caps, shirts, jerseys, pants, etc.",0, 3 , 'L')
+    
 
 
     pdf.add_page()
     pdf.cell(0, 30, txt="A Tabular and Graphical Report of Realation between labels and colors in the video", ln = 1, align = 'C')
     pdf.image(heatmap_buf, x=25, y=70, w=image_w + 40, h=image_h)
     pdf.ln(1*image_h+15)
-    pdf.multi_cell(0,10,'The heat map is a data visualization technique that shows magnitude of a phenomenon as colour in two dimensions. This one in particular highlights the relationship between labels and their respective colours. The colours of respective clothing accessories like jeans,shirts,sweaters,etc range from various hues of grey,blue,brown and silver. Upon observation, we can conclude that the intensity of rosy brown jeans was the highest while dark grey scarfs and jeans were comparable as well.', 0, 1,'L')
-
+    pdf.multi_cell(0,10,'The heat map is a data visualization technique that shows magnitude of a phenomenon as colour in two dimensions. This one in particular highlights the relationship between labels and their respective colours. The colours of respective clothing accessories like jeans,shirts,sweaters,etc range from various hues of grey,blue,brown and silver.', 0, 1,'L')
+    
     pdf.add_page()
     pdf.cell(0, 30, txt="A Tabular and Graphical Report of Realation between labels and colors in the video", ln = 1, align = 'C')
-    pdf.image(piechart_buf, x=25, y=70, w=image_w + 40, h=image_h)
+    pdf.image(linechart_buf, x=25, y=70, w=image_w + 40, h=image_h)
     pdf.ln(1*image_h+15)
-    pdf.multi_cell(0,10,"This pie chart shows the result of a cctv surveillance camera, scanned frame by frame for clothing attributes. The video showcased a number of people wearing various clothing accessories. The different attributes identified are blazers, jeans, sweaters, scarfs, sarees, caps, shirts, jerseys, pants, etc. The pie chart above shows that majority people were wearing sweaters,scarfs and jeans; thereby hinting towards a possibility of cold climate.", 0, 1, 'L')
-
+    pdf.multi_cell(0,10,"A line graph is a graphical display of information that changes continuously over time. In this case the graph displays the number of people in the video at particular timestamps.", 0, 1, 'L')
+    pdf.ln(30)
+    pdf.cell(0,10," Maximum Number of people in any frame of the video = {}".format(max(line_chart.values())) , 0, 1, "L")
+    image_array = []
     return pdf.output(dest='S')
-
 
 
 def searchPDF_format(report, user):
@@ -334,11 +334,13 @@ def generateVideoReport(oid):
 
             #line chart
             line_chart = { x['frame_sec'] : len(json.loads(x['persons'])) for x in feature['metadata']}
+            # print(line_chart)
             #plotting
             plt.plot(list(line_chart.keys()), list(line_chart.values()))
             plt.title('TimeFrame Vs No. of persons')
-            plt.xlabel('No. of persons')
-            plt.ylabel('TimeFrame')
+            plt.xlabel('TimeFrame')
+            plt.ylabel('No. of persons')
+            # plt.savefig("line.pdf")
             linechart_buf = image_to_buffer(plt)
 
 
@@ -353,6 +355,7 @@ def generateVideoReport(oid):
                         for x in colors:
                                 features[key.split(",")[0]][x] = 0
                 features[key.split(",")[0]][key.split(",")[1]] = cc[key]
+            # print(features)
             corr = [ list(val.values()) for val in features.values()]
             #plotting
             fig = plt.figure(figsize=(12,10), dpi= 80,facecolor=(1, 1, 1))
@@ -360,23 +363,33 @@ def generateVideoReport(oid):
             plt.title('Relationship between Labels and resp. Colors', fontsize=14)
             plt.xticks(fontsize=8)
             plt.yticks(fontsize=8)
+            # plt.savefig("heat.pdf")
             heatmap_buf = image_to_buffer(plt)
 
 
             #pie chart
             pie_chart = Counter(list(chain(*[ list(chain(*[ x['labels'] for x in json.loads(metadata['persons'])])) for metadata in feature['metadata']])))
             #plotting
+            # print(pie_chart)
             fig = plt.figure()
             ax = fig.add_axes([0,0,1,1])
             ax.axis('equal')
-            ax.pie(list(pie_chart.values()), labels = list(pie_chart.keys()),autopct='%1.2f%%')
+            ax.pie(list(pie_chart.values()), labels = list(pie_chart.keys()),autopct='%1.2f%%') 
+            # pl.savefig("pie.pdf")
             piechart_buf = image_to_buffer(plt)
+            
 
             #generate_pdf
+            
+
             pdf_str = videoPDF_format(video,line_chart,linechart_buf,heatmap_buf,piechart_buf)
             response = make_response(pdf_str)
             response.headers['Content-Disposition'] = "attachment; filename='report.pdf"
             response.mimetype = 'application/pdf'
+            linechart_buf.truncate(0)
+            piechart_buf.truncate(0)
+            heatmap_buf.truncate(0)
+            plt.clf()
             return response, 200
     except Exception as e:
         return f"An Error Occured: {e}"

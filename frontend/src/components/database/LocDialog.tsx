@@ -97,13 +97,20 @@ const LocationItem: React.FC<LocationItemProps> = (props) => {
           </div>
         </Grid>
         <Grid item xs={6}>
-          <div style={{ fontSize: "12px" }}>Latitude</div>
-          <div style={{ color: "#fff" }}>
-            {parseFloat(props.latitude).toFixed(3)}
+          <div style={{ fontSize: "12px", wordWrap: "break-word" }}>
+            {props.name}
           </div>
-          <div style={{ fontSize: "12px" }}>Longitude</div>
-          <div style={{ color: "#fff" }}>
-            {parseFloat(props.longitude).toFixed(3)}
+          <div style={{ marginTop: "5px" }}>
+            <span style={{ fontSize: "12px" }}>Lat{" "}:{" "}</span>
+            <span style={{ color: "#fff" }}>
+              {parseFloat(props.latitude).toFixed(3)}
+            </span>
+          </div>
+          <div>
+            <span style={{ fontSize: "12px" }}>Lon{" "}:{" "}</span>
+            <span style={{ color: "#fff" }}>
+              {parseFloat(props.longitude).toFixed(3)}
+            </span>
           </div>
         </Grid>
       </Grid>
@@ -141,10 +148,10 @@ const LocDialog: React.FC<LocDialogProps> = (props) => {
         const responseData = await sendRequest(
           process.env.REACT_APP_BACKEND_URL + "/cctv/getcctv",
           "GET",
-        null,
-        {
-          Authorization: 'Bearer ' + auth.token
-        }
+          null,
+          {
+            Authorization: "Bearer " + auth.token,
+          }
         );
         setLocationData(responseData);
         setSearchData(responseData);
@@ -197,7 +204,7 @@ const LocDialog: React.FC<LocDialogProps> = (props) => {
           }),
           {
             "Content-Type": "application/json",
-            Authorization: 'Bearer ' + auth.token
+            Authorization: "Bearer " + auth.token,
           }
         );
         console.log(responseData);

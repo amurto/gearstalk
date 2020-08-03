@@ -10,7 +10,7 @@ import cv2
         import classification dependencies
 ************************************************'''
 
-model = tf.keras.models.load_model(('./models/classification/fashion.h5'),custom_objects={'KerasLayer':hub.KerasLayer})
+model = tf.keras.models.load_model(('./models/classification/phase2/fashion.h5'),custom_objects={'KerasLayer':hub.KerasLayer})
 top = 0,1,5,6,8,9,11,12,13,14,17,19,21
 head = 2,4,18
 bottom = 3,10,16,20
@@ -20,8 +20,7 @@ pixels = 224
 FV_SIZE = 1280
 IMAGE_SIZE = (pixels, pixels)
 BATCH_SIZE = 64
-classes = ['blazer', 'burkha', 'headwear', 'long pants', 'scarf', 'sweater', 'vest', 'bags', 'chudidar', 'hoddie', 'jeans', 'jersey', 'kurta', 'saree', 'shirt', 'shoes', 'skirt', 'strip-dress', 'sunglasses', 'tops', 'trousers', 'tshirt']
-
+classes = ['blazer', 'burkha','halfshirt', 'headwear', 'longpants', 'scarf', 'sweater', 'vest', 'bags', 'chudidar', 'hoddie', 'jeans', 'jersey', 'kurta', 'saree', 'shirt', 'shoes', 'skirt', 'strip-dress', 'sunglasses', 'tops', 'trousers', 'tshirt']
 
 
 '''************************************************

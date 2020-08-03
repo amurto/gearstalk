@@ -22,6 +22,7 @@ import InsertChartIcon from "@material-ui/icons/InsertChart";
 import ImageSearchIcon from "@material-ui/icons/ImageSearch";
 import VideocamIcon from "@material-ui/icons/Videocam";
 import FindInPageIcon from '@material-ui/icons/FindInPage';
+import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import { Typography, Theme } from "@material-ui/core";
@@ -213,6 +214,19 @@ const SideDrawer: React.FC<Props> = (props) => {
             </Avatar>
           </ListItemIcon>
           <ListItemText primary="Visualization" />
+        </ListItem>
+        <ListItem
+          button
+          onClick={() => {
+            pushLink("/livestream");
+          }}
+        >
+          <ListItemIcon>
+            <Avatar>
+              <RemoveFromQueueIcon fontSize="small" />
+            </Avatar>
+          </ListItemIcon>
+          <ListItemText primary="Realtime Feed" />
         </ListItem>
       </List>
       {/* <Divider className={classes.divider} />
