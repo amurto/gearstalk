@@ -1,3 +1,6 @@
 /frontend/.env
-/backend1/.env
+/backend/.env
 /package.json
+/backend_2/.env
+/Clothing_Classification/.env
+/load_balancer/.env
