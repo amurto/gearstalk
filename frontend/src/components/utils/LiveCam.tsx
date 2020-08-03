@@ -312,7 +312,7 @@ const LiveCam: React.FC = () => {
   const [live, setLive] = useState<boolean>(false);
   const classes = useStyles();
   const [location, setLocation] = useState<{ [key: string]: any }>({});
-  const [ip, setIp] = useState<string>("");
+  const [ip, setIp] = useState<string>(null);
   const handleIpChange = (e) => setIp(e.target.value);
   const [open, setOpen] = useState<boolean>(false);
   const handleClickOpen = () => {
